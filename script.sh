@@ -117,22 +117,29 @@ services:
     networks:
       - chromium_net
     ports:
-      - "5678:5678"
+      - "3040:3040"
+      - "9222:9222"
     volumes:
       - ~/chromium-data:/config
+    command: >
+    chromium
+    --remote-debugging-address=0.0.0.0
+    --remote-debugging-port=9222
+    --no-sandbox
+    --disable-dev-shm-usage
+    --disable-gpu
 
   bromato:
   build: ./bromato
   container_name: bromato
   restart: always
-  shm_size: "1gb"
   networks:
     - chromium_net
   ports:
     - "3025:3025"
   environment:
     - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-    - BROWSER_WS_ENDPOINT=ws://chromium:5678
+    - BROWSER_WS_ENDPOINT=ws://chromium:3040
 
   cloudflared:
     image: cloudflare/cloudflared:latest
@@ -149,7 +156,7 @@ networks:
 EOF
 
 echo "🚀 Menjalankan Docker Compose..."
-sudo docker compose up -d
+#sudo docker compose up -d
 
 echo "🧹 Membersihkan file yang tidak dibutuhkan..."
 sudo rm -f chromium-stable.tar
