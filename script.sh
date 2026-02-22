@@ -48,98 +48,55 @@ if [ ! -d "bromato" ]; then
 
   echo "⬇️ Clone Bromato..."
   git clone https://github.com/gyoridavid/bromato.git
-
 fi
 
-
 echo "📝 Generating docker-compose.yml..."
-
 
 cat > docker-compose.yml <<'EOF'
 version: "3.8"
 
-services:
-  
+services:  
   chromium:
-    
     image: chromium-stable:latest
-    
     container_name: chromium
-    
     restart: always
-    
     shm_size: "1gb"
-    
     networks:
-      
       - chromium_net
-    
     ports:
-      
       - "3040:3040"
-    
     volumes:
-      
       - ~/chromium-data:/config
-
-
-bromato:
-    
-  image: node:20-slim
-    
-  container_name: bromato
-    
-  restart: always
-    
-  shm_size: "1gb"
-    
-  networks:
-      
-    - chromium_net
-    
-  working_dir: /app
-    
-  volumes:
-      
-    - ./bromato:/app
-    
-  ports:
-      
-    - "3025:3025"
-    
-  command: >
-      
-    sh -c "
-      
-    npm install &&
-      
-    npx playwright install chromium &&
-      
-    npm start
-      
-    "
+  bromato:
+    image: node:20-slim
+    container_name: bromato
+    restart: always
+    shm_size: "1gb"
+    networks:  
+      - chromium_net
+    working_dir: /app
+    volumes:
+      - ./bromato:/app
+    ports:
+      - "3025:3025"
+    command: >
+      sh -c "
+      npm install &&
+      npx playwright install chromium &&
+      npm start
+      "
 cloudflared:
-    
   image: cloudflare/cloudflared:latest
-    
   container_name: cloudflared
-    
   restart: always
-    
   networks:
-      
     - chromium_net
-    
   command: >
-      
     tunnel --no-autoupdate run --token xx
-  
-networks:
-  
-  chromium_net:
-    
-    driver: bridge
 
+networks:
+  chromium_net:
+    driver: bridge
 EOF
 
 echo "🚀 Menjalankan Docker Compose..."
