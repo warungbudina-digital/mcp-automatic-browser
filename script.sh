@@ -87,14 +87,14 @@ services:
       npm start
       "
 
-cloudflared:
-  image: cloudflare/cloudflared:latest
-  container_name: cloudflared
-  restart: always
-  networks:
-    - chromium_net
-  command: >
-    tunnel --no-autoupdate run --token xx
+ cloudflared:
+   image: cloudflare/cloudflared:latest
+   container_name: cloudflared
+   restart: always
+   networks:
+     - chromium_net
+   command: >
+     tunnel --no-autoupdate run --token xx
 
 networks:
   chromium_net:
