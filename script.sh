@@ -50,6 +50,59 @@ if [ ! -d "bromato" ]; then
   git clone https://github.com/gyoridavid/bromato.git
 fi
 
+cat > Dockerfile <<'EOF'
+FROM node:20-slim
+
+# Skip download browser Playwright (gunakan Chromium external)
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+
+# Production mode
+ENV NODE_ENV=production
+
+# Disable telemetry
+ENV PLAYWRIGHT_DISABLE_TELEMETRY=1
+
+RUN apt-get update && apt-get install -y \
+    ca-certificates \
+    curl \
+    wget \
+    git \
+    fonts-liberation \
+    libasound2 \
+    libatk-bridge2.0-0 \
+    libatk1.0-0 \
+    libcups2 \
+    libdbus-1-3 \
+    libdrm2 \
+    libgbm1 \
+    libgtk-3-0 \
+    libnspr4 \
+    libnss3 \
+    libx11-xcb1 \
+    libxcomposite1 \
+    libxdamage1 \
+    libxrandr2 \
+    libu2f-udev \
+    libvulkan1 \
+    xdg-utils \
+    --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm install --omit=dev
+
+RUN npm install -g tsx
+
+COPY . .
+
+EXPOSE 3025
+
+CMD ["tsx", "src/index.ts"]
+EOF
+
 echo "📝 Generating docker-compose.yml..."
 
 cat > docker-compose.yml <<'EOF'
@@ -64,28 +117,22 @@ services:
     networks:
       - chromium_net
     ports:
-      - "3040:3040"
+      - "5678:5678"
     volumes:
       - ~/chromium-data:/config
 
   bromato:
-    image: node:20-slim
-    container_name: bromato
-    restart: always
-    shm_size: "1gb"
-    networks:
-      - chromium_net
-    working_dir: /app
-    volumes:
-      - ./bromato:/app
-    ports:
-      - "3025:3025"
-    command: >
-      sh -c "
-      npm install &&
-      npx playwright install chromium &&
-      npm start
-      "
+  build: ./bromato
+  container_name: bromato
+  restart: always
+  shm_size: "1gb"
+  networks:
+    - chromium_net
+  ports:
+    - "3025:3025"
+  environment:
+    - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+    - BROWSER_WS_ENDPOINT=ws://chromium:5678
 
   cloudflared:
     image: cloudflare/cloudflared:latest
