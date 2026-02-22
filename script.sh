@@ -55,7 +55,7 @@ echo "📝 Generating docker-compose.yml..."
 cat > docker-compose.yml <<'EOF'
 version: "3.8"
 
-services:  
+services:
   chromium:
     image: chromium-stable:latest
     container_name: chromium
@@ -67,13 +67,13 @@ services:
       - "3040:3040"
     volumes:
       - ~/chromium-data:/config
-  
+
   bromato:
     image: node:20-slim
     container_name: bromato
     restart: always
     shm_size: "1gb"
-    networks:  
+    networks:
       - chromium_net
     working_dir: /app
     volumes:
@@ -87,14 +87,14 @@ services:
       npm start
       "
 
- cloudflared:
-   image: cloudflare/cloudflared:latest
-   container_name: cloudflared
-   restart: always
-   networks:
-     - chromium_net
-   command: >
-     tunnel --no-autoupdate run --token xx
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared
+    restart: always
+    networks:
+      - chromium_net
+    command: >
+      tunnel --no-autoupdate run --token xx
 
 networks:
   chromium_net:
