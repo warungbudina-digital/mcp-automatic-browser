@@ -42,12 +42,12 @@ rclone copy --config="$RCLONE_CONF_PATH" "$REMOTE_NAME:$GDRIVE_FOLDER" "$DEST_FO
 echo "🐳 Menyiapkan kontainer Chromium..."
 
 sudo docker load -i chromium-stable.tar
+sudo tar -xzvf chromium-data.tar.gz -C ~/
 
 if [ ! -d "bromato" ]; then
 
   echo "⬇️ Clone Bromato..."
   git clone https://github.com/gyoridavid/bromato.git
-  cd bromato
 fi
 
 echo "📝 Generating docker-compose.yml..."
@@ -67,6 +67,7 @@ services:
       - "3040:3040"
     volumes:
       - ~/chromium-data:/config
+  
   bromato:
     image: node:20-slim
     container_name: bromato
@@ -85,6 +86,7 @@ services:
       npx playwright install chromium &&
       npm start
       "
+
 cloudflared:
   image: cloudflare/cloudflared:latest
   container_name: cloudflared
@@ -98,8 +100,6 @@ networks:
   chromium_net:
     driver: bridge
 EOF
-
-sudo tar -xzvf chromium-data.tar.gz -C ~/
 
 echo "🚀 Menjalankan Docker Compose..."
 sudo docker compose up -d
