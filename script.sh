@@ -125,21 +125,18 @@ services:
     chromium
     --remote-debugging-address=0.0.0.0
     --remote-debugging-port=9222
-    --no-sandbox
-    --disable-dev-shm-usage
-    --disable-gpu
 
   bromato:
-  build: ./bromato
-  container_name: bromato
-  restart: always
-  networks:
-    - chromium_net
-  ports:
-    - "3025:3025"
-  environment:
-    - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
-    - BROWSER_WS_ENDPOINT=ws://chromium:3040
+    build: ./bromato
+    container_name: bromato
+    restart: always
+    networks:
+      - chromium_net
+    ports:
+      - "3025:3025"
+    environment:
+      - PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
+      - BROWSER_WS_ENDPOINT=ws://chromium:3040
 
   cloudflared:
     image: cloudflare/cloudflared:latest
