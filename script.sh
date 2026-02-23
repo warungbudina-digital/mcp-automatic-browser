@@ -50,7 +50,7 @@ if [ ! -d "bromato" ]; then
   git clone https://github.com/gyoridavid/bromato.git
 fi
 
-cat > Dockerfile <<'EOF'
+cat > bromato/Dockerfile <<'EOF'
 FROM node:20-slim
 
 # Skip download browser Playwright (gunakan Chromium external)
@@ -118,13 +118,12 @@ services:
       - chromium_net
     ports:
       - "3040:3040"
-      - "9222:9222"
     volumes:
       - ~/chromium-data:/config
     command: >
     chromium
     --remote-debugging-address=0.0.0.0
-    --remote-debugging-port=9222
+    --remote-debugging-port=3040
 
   bromato:
     build: ./bromato
